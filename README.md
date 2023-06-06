@@ -6,7 +6,12 @@ more points if they catch the goal LED on the first time around, with the points
 Points will be outputted in the serial monitor when the game ends. The switch will be used to turn 
 sound effects on/off.
 
+
+
 Input/Output
+
 Left button: Selects current cursor LED location
+
 Right button:	Selects current cursor LED location
+
 Slide switch:	Turns sound on/off
