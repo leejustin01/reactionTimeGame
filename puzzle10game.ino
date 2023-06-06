@@ -3,11 +3,11 @@
 int level = 0;
 int cursor = 0;
 int goal;
-int delay = 50;
+int levelDelay = 50;
 
 float midi[127];
-int alarm = 77;
-int happySound[] = {77, 81, 85};
+int lose[] = {85, 81, 77};
+int win[] = {77, 81, 85};
 bool sound;
 
 volatile bool buttonFlag = false;
@@ -26,7 +26,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(5), buttonISR, RISING);
   attachInterrupt(digitalPinToInterrupt(7), switchISR, CHANGE);
 
-  sound = CircuitPlayground.SlideSwitch();
+  sound = CircuitPlayground.slideSwitch();
   goal = random(10);
   CircuitPlayground.setPixelColor(goal, 0, 255, 0);
 }
@@ -34,7 +34,7 @@ void setup() {
 void loop() {
   if (switchFlag) {
     delay(5);
-    sound = CircuitPlayground.SlideSwitch();
+    sound = CircuitPlayground.slideSwitch();
     switchFlag = false;
   }
   if (buttonFlag) {
