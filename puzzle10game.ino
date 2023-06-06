@@ -39,22 +39,40 @@ void loop() {
   }
   if (buttonFlag) {
     if (cursor == goal) {
-      // if sound then play happy sound
-      // increase level
-      // reduce delay
+      if (sound) playSequence(win);
+      level++;
+      levelDelay -= 10;
     } else {
-      //if sound then play sad sound
-      //blink leds
-      //game over (reset the levels, delay, etc.)
+      if (sound) playSequence(lose);
+      blink(3);
+      Serial.println("GAME OVER... RESETTING LEVELS");
+      level = 0;
+      cursor = 0;
+      levelDelay = 50;
     }
     goal = random(10);
     CircuitPlayground.setPixelColor(goal, 0, 255, 0);
   }
-  // increment cursor
-  // delay level delay
+  cursor+1 > 9 ? cursor = 0 : cursor ++; // increments cursor with wraparound effect
+  delay(levelDelay);
 }
 
+void playSequence(int arr[]) {
+  CircuitPlayground.playTone(midi[arr[0]], 50);
+  CircuitPlayground.playTone(midi[arr[1]], 50);
+  CircuitPlayground.playTone(midi[arr[2]], 150);
+}
 
+void blink(int reps) {
+  for (int i = 0; i < reps; i++) {
+    for (int j = 0; j < 10; j++) {
+      CircuitPlayground.setPixelColor(j,255,0,0);
+    }
+    delay(10);
+    CircuitPlayground.clearPixels();
+    delay(10);
+  }
+}
 
 void buttonISR() {
   buttonFlag = true;
