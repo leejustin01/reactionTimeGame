@@ -3,7 +3,8 @@
 int level = 0;
 int cursor = 0;
 int goal;
-int levelDelay = 50;
+int levelDelay = 100;
+int points = 0;
 
 float midi[127];
 int lose[] = {85, 81, 77};
@@ -32,29 +33,40 @@ void setup() {
 }
 
 void loop() {
+  CircuitPlayground.setPixelColor(cursor, 255,255,255);
   if (switchFlag) {
     delay(5);
     sound = CircuitPlayground.slideSwitch();
     switchFlag = false;
   }
   if (buttonFlag) {
+    delay(5);
+    buttonFlag = false;
     if (cursor == goal) {
       if (sound) playSequence(win);
       level++;
-      levelDelay -= 10;
+      levelDelay -=5;
+      if (level == 10) {
+        Serial.println("YOU WIN!"); // eventually will print out points as well
+        level = 0;
+        cursor = 0;
+        levelDelay = 100;
+      }
+      delay(50);
     } else {
       if (sound) playSequence(lose);
       blink(3);
       Serial.println("GAME OVER... RESETTING LEVELS");
       level = 0;
       cursor = 0;
-      levelDelay = 50;
+      levelDelay = 100;
     }
     goal = random(10);
     CircuitPlayground.setPixelColor(goal, 0, 255, 0);
   }
-  cursor+1 > 9 ? cursor = 0 : cursor ++; // increments cursor with wraparound effect
   delay(levelDelay);
+  CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 255 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
+  cursor+1 > 9 ? cursor = 0 : cursor ++; // increments cursor with wraparound effect
 }
 
 void playSequence(int arr[]) {
@@ -68,9 +80,9 @@ void blink(int reps) {
     for (int j = 0; j < 10; j++) {
       CircuitPlayground.setPixelColor(j,255,0,0);
     }
-    delay(10);
+    delay(75);
     CircuitPlayground.clearPixels();
-    delay(10);
+    delay(75);
   }
 }
 
