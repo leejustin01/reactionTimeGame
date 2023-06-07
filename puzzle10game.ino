@@ -5,6 +5,8 @@ int cursor = 0;
 int goal;
 int levelDelay = 100;
 int points = 0;
+bool gameOver = false;
+bool playerWon = false;
 
 float midi[127];
 int lose[] = {85, 81, 77};
@@ -39,34 +41,48 @@ void loop() {
     sound = CircuitPlayground.slideSwitch();
     switchFlag = false;
   }
+
   if (buttonFlag) {
     delay(5);
-    buttonFlag = false;
+    Serial.println(cursor);
+    Serial.println(goal);
     if (cursor == goal) {
-      if (sound) playSequence(win);
+      if (sound) CircuitPlayground.playTone(midi[map(level, 0, 9, 60, 100)], 50);
       level++;
       levelDelay -=5;
-      if (level == 10) {
-        Serial.println("YOU WIN!"); // eventually will print out points as well
-        level = 0;
-        cursor = 0;
-        levelDelay = 100;
-      }
+      playerWon = level==10;
+      gameOver = playerWon;
       delay(50);
     } else {
-      if (sound) playSequence(lose);
-      blink(3);
-      Serial.println("GAME OVER... RESETTING LEVELS");
-      level = 0;
-      cursor = 0;
-      levelDelay = 100;
+      gameOver = true;
     }
     goal = random(10);
     CircuitPlayground.setPixelColor(goal, 0, 255, 0);
+    buttonFlag = false;
   }
-  delay(levelDelay);
-  CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 255 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
-  cursor+1 > 9 ? cursor = 0 : cursor ++; // increments cursor with wraparound effect
+
+  if (gameOver) {
+    if (playerWon) {
+      if (sound) playSequence(win);
+      Serial.println("YOU WIN"); // eventually will print score
+      CircuitPlayground.clearPixels();
+    } else {
+      blink(3);
+      if (sound) playSequence(lose);
+      Serial.println("GAME OVER... RESETTING LEVELS"); // eventually will print score
+    }
+    level = 0;
+    levelDelay = 100;
+    playerWon = false; // reset the game
+    gameOver = false;
+    cursor = 0;
+    goal = random(10);
+    CircuitPlayground.setPixelColor(goal, 0, 255, 0);
+  } else {
+    delay(levelDelay);
+    CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 255 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
+    cursor+1 > 9 ? cursor = 0 : cursor ++; // increments cursor with wraparound effect
+  }
 }
 
 void playSequence(int arr[]) {
