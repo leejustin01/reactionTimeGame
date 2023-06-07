@@ -5,8 +5,10 @@ int cursor = 0;
 int goal;
 int levelDelay = 100;
 int points = 0;
+int rounds_until_scored = 0;
 bool gameOver = false;
 bool playerWon = false;
+
 
 float midi[127];
 int lose[] = {85, 81, 77};
@@ -44,18 +46,20 @@ void loop() {
 
   if (buttonFlag) {
     delay(5);
-    Serial.println(cursor);
+    Serial.println(cursor); //for debugging
     Serial.println(goal);
     if (cursor == goal) {
       if (sound) CircuitPlayground.playTone(midi[map(level, 0, 9, 60, 100)], 50);
+      points += 1000 - (50*rounds_until_scored);
       level++;
       levelDelay -=5;
-      playerWon = level==10;
+      playerWon = (level==10);
       gameOver = playerWon;
       delay(50);
     } else {
       gameOver = true;
     }
+    rounds_until_scored = 0;
     goal = random(10);
     CircuitPlayground.setPixelColor(goal, 0, 255, 0);
     buttonFlag = false;
@@ -64,24 +68,33 @@ void loop() {
   if (gameOver) {
     if (playerWon) {
       if (sound) playSequence(win);
-      Serial.println("YOU WIN"); // eventually will print score
+      Serial.println("YOU WIN");
       CircuitPlayground.clearPixels();
     } else {
       blink(3);
       if (sound) playSequence(lose);
-      Serial.println("GAME OVER... RESETTING LEVELS"); // eventually will print score
+      Serial.println("GAME OVER... RESETTING LEVEL");
     }
+    Serial.print("YOUR SCORE IS: ");
+    Serial.println(points);
     level = 0;
     levelDelay = 100;
     playerWon = false; // reset the game
     gameOver = false;
+    rounds_until_scored = 0;
+    points = 0;
     cursor = 0;
     goal = random(10);
     CircuitPlayground.setPixelColor(goal, 0, 255, 0);
   } else {
     delay(levelDelay);
     CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 255 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
-    cursor+1 > 9 ? cursor = 0 : cursor ++; // increments cursor with wraparound effect
+    if (cursor+1 > 9) {
+      cursor = 0;
+      rounds_until_scored ++;
+    } else {
+      cursor++;
+    }
   }
 }
 
