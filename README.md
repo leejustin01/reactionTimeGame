@@ -10,8 +10,8 @@ sound effects on/off.
 
 Input/Output
 
-Left button: Selects current cursor LED location
+Left button: Selects current cursor LED location, outputs through speaker/neo pixels/serial monitor
 
-Right button:	Selects current cursor LED location
+Right button:	Selects current cursor LED location, outputs through speaker/neo pixels/serial monitor
 
-Slide switch:	Turns sound on/off
+Slide switch:	Turns sound on/off, outputs through speaker
