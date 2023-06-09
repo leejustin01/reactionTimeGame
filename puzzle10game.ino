@@ -33,11 +33,11 @@ void setup() {
 
   sound = CircuitPlayground.slideSwitch();
   goal = random(10);
-  CircuitPlayground.setPixelColor(goal, 0, 255, 0);
+  CircuitPlayground.setPixelColor(goal, 0, 120, 0);
 }
 
 void loop() {
-  CircuitPlayground.setPixelColor(cursor, 255,255,255);
+  CircuitPlayground.setPixelColor(cursor, 120,120,120);
   if (switchFlag) {
     delay(5);
     sound = CircuitPlayground.slideSwitch();
@@ -46,11 +46,12 @@ void loop() {
 
   if (buttonFlag) {
     delay(5);
-    Serial.println(cursor); //for debugging
-    Serial.println(goal);
+    //Serial.println(cursor); //for debugging
+    //Serial.println(goal);
     if (cursor == goal) {
       if (sound) CircuitPlayground.playTone(midi[map(level, 0, 9, 60, 100)], 50);
-      points += 1000 - (50*rounds_until_scored);
+      int level_points = 1000 - (50*rounds_until_scored);
+      if (level_points > 0) points += level_points;
       level++;
       levelDelay -=5;
       playerWon = (level==10);
@@ -61,7 +62,7 @@ void loop() {
     }
     rounds_until_scored = 0;
     goal = random(10);
-    CircuitPlayground.setPixelColor(goal, 0, 255, 0);
+    CircuitPlayground.setPixelColor(goal, 0, 120, 0);
     buttonFlag = false;
   }
 
@@ -74,9 +75,12 @@ void loop() {
       blink(3);
       if (sound) playSequence(lose);
       Serial.println("GAME OVER... RESETTING LEVEL");
+      Serial.print("YOU LOST ON LEVEL ");
+      Serial.println(level+1);
     }
     Serial.print("YOUR SCORE IS: ");
     Serial.println(points);
+    Serial.println("\n");
     level = 0;
     levelDelay = 100;
     playerWon = false; // reset the game
@@ -85,10 +89,10 @@ void loop() {
     points = 0;
     cursor = 0;
     goal = random(10);
-    CircuitPlayground.setPixelColor(goal, 0, 255, 0);
+    CircuitPlayground.setPixelColor(goal, 0, 120, 0);
   } else {
     delay(levelDelay);
-    CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 255 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
+    CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 120 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
     if (cursor+1 > 9) {
       cursor = 0;
       rounds_until_scored ++;
