@@ -5,7 +5,7 @@ int cursor = 0;
 int goal;
 int levelDelay = 100;
 int points = 0;
-int rounds_until_scored = 0;
+int rounds_until_scored = 0; // tracks each time around before player clicks (used for points system)
 bool gameOver = false;
 bool playerWon = false;
 
@@ -38,49 +38,64 @@ void setup() {
 
 void loop() {
   CircuitPlayground.setPixelColor(cursor, 120,120,120);
+
+  // turns sounds on/off
   if (switchFlag) {
     delay(5);
     sound = CircuitPlayground.slideSwitch();
     switchFlag = false;
   }
 
+  // During game logic
   if (buttonFlag) {
     delay(5);
-    //Serial.println(cursor); //for debugging
-    //Serial.println(goal);
+
+    // if player clicked on time
     if (cursor == goal) {
-      if (sound) CircuitPlayground.playTone(midi[map(level, 0, 9, 60, 100)], 50);
-      int level_points = 1000 - (50*rounds_until_scored);
-      if (level_points > 0) points += level_points;
+      if (sound) CircuitPlayground.playTone(midi[map(level, 0, 9, 60, 100)], 50); // play sounds increasing in pitch based on the level
+
+      int level_points = 1000 - (50*rounds_until_scored); 
+      if (level_points > 0) points += level_points; // cannot lose points for waiting too long
+
       level++;
-      levelDelay -=5;
-      playerWon = (level==10);
+      levelDelay -=5; // increase level and difficulty
+
+      playerWon = (level==10); // checks if the game is over
       gameOver = playerWon;
+
       delay(50);
     } else {
-      gameOver = true;
+      gameOver = true; // if player misses, then the game ends 
     }
     rounds_until_scored = 0;
+
     goal = random(10);
-    CircuitPlayground.setPixelColor(goal, 0, 120, 0);
+    CircuitPlayground.setPixelColor(goal, 0, 120, 0); // choose and display new goal
+
     buttonFlag = false;
   }
 
+  // Game end logic
   if (gameOver) {
     if (playerWon) {
+
       if (sound) playSequence(win);
       Serial.println("YOU WIN");
       CircuitPlayground.clearPixels();
+
     } else {
+
       blink(3);
       if (sound) playSequence(lose);
       Serial.println("GAME OVER... RESETTING LEVEL");
       Serial.print("YOU LOST ON LEVEL ");
       Serial.println(level+1);
+
     }
     Serial.print("YOUR SCORE IS: ");
     Serial.println(points);
     Serial.println("\n");
+
     level = 0;
     levelDelay = 100;
     playerWon = false; // reset the game
@@ -90,10 +105,11 @@ void loop() {
     cursor = 0;
     goal = random(10);
     CircuitPlayground.setPixelColor(goal, 0, 120, 0);
-  } else {
-    delay(levelDelay);
+
+  } else { // If game is not over and should continue
+    delay(levelDelay); // delay in between moving the cursor
     CircuitPlayground.setPixelColor(cursor, 0, cursor==goal ? 120 : 0, 0); //if cursor is on top of goal, set the led back to green, otherwise turn it off
-    if (cursor+1 > 9) {
+    if (cursor+1 > 9) { // if cursor completed a full circle, increase the rounds and wrap cursor around
       cursor = 0;
       rounds_until_scored ++;
     } else {
